@@ -1,19 +1,21 @@
 async function handleChatSubmit() {
     const promptInput = document.getElementById("user-prompt");
     const responseWindow = document.getElementById("ai-response");
+    
+    // Check if elements exist on page
+    if (!promptInput || !responseWindow) return;
+    
     const promptText = promptInput.value.trim();
-
     if (!promptText) {
         alert("Please enter a prompt first!");
         return;
     }
 
-    // Show loading text in the VS Code terminal window layout
-    responseWindow.innerText = "// Connecting to proxy... Analyzing matrix and streaming data...";
+    // VS Code streaming status comment layout
+    responseWindow.innerText = "// Connecting to proxy... Streaming data matrix...";
     promptInput.value = "";
 
     try {
-        // Pointing directly to your working Render URL
         const response = await fetch("https://freebuff-bqdi.onrender.com/api/chat", {
             method: "POST",
             headers: {
@@ -26,13 +28,10 @@ async function handleChatSubmit() {
             })
         });
 
-        if (!response.ok) {
-            throw new Error(`Server returned status code: ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
         const data = await response.json();
         
-        // Handle output response from server data formatting structure
+        // Output clean AI message text directly to screen
         if (data.message && data.message.content) {
             responseWindow.innerText = data.message.content;
         } else if (data.response) {
@@ -43,6 +42,6 @@ async function handleChatSubmit() {
 
     } catch (error) {
         console.error("Error:", error);
-        responseWindow.innerText = `// System Error: Failed to retrieve data from cloud.\n// Details: ${error.message}`;
+        responseWindow.innerText = `// System Error: Failed to fetch model data.\n// Details: ${error.message}`;
     }
 }
