@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 
 const app = express();
+
+// Enable open cors sharing so your GitHub page can hit this endpoint cleanly
 app.use(cors());
 app.use(express.json());
 
@@ -16,12 +18,19 @@ app.post('/api/chat', async (req, res) => {
             body: JSON.stringify(req.body)
         });
         
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Ollama Upstream Error:", errorText);
+            return res.status(response.status).json({ error: "Upstream AI failure" });
+        }
+        
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        res.status(500).json({ error: "Failed to connect to Ollama cloud" });
+        console.error("Proxy Processing Error:", error);
+        res.status(500).json({ error: "Internal Server Processing Error" });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server executing successfully on port ${PORT}`));
