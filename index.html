@@ -2,213 +2,146 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freebuff VS Code Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Freebuff AI Studio</title>
     <style>
-        :root {
-            --editor-bg: #1e1e1e;
-            --sidebar-bg: #252526;
-            --activity-bg: #333333;
-            --tab-active: #1e1e1e;
-            --tab-inactive: #2d2d2d;
-            --accent-blue: #007acc;
-            --text-main: #d4d4d4;
-            --text-link: #4fc1ff;
-            --text-string: #ce9178;
-            --text-keyword: #569cd6;
-            --status-bg: #007acc;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-
         body {
-            font-family: 'Consolas', 'Courier New', Courier, monospace;
-            background-color: var(--editor-bg);
-            color: var(--text-main);
+            background-color: #131314;
+            color: #e3e3e3;
             display: flex;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
-
-        /* VS Code Style Top Tabs */
-        .tabs-container {
-            display: flex;
-            background-color: var(--sidebar-bg);
-            overflow-x: auto;
-            border-bottom: 1px solid #2b2b2b;
-        }
-
-        .tab {
+        /* Top Navigation bar */
+        header {
+            background-color: #1e1f20;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
-            padding: 10px 16px;
-            background-color: var(--tab-inactive);
-            font-size: 0.85rem;
-            cursor: pointer;
-            border-right: 1px solid #252526;
-            white-space: nowrap;
+            border-bottom: 1px solid #2d2f31;
         }
-
-        .tab.active {
-            background-color: var(--tab-active);
-            color: #fff;
-            border-top: 1px solid var(--accent-blue);
+        header h1 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #e3e3e3;
+            letter-spacing: 0.2px;
         }
-
-        .tab span {
-            color: #e5c07b;
-            margin-right: 6px;
-            font-weight: bold;
+        header .model-badge {
+            background-color: #004a77;
+            color: #c2e7ff;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+            font-weight: 600;
         }
-
-        /* Editor Output Pane */
-        .editor-container {
+        /* Chat View Window */
+        #chat-container {
             flex: 1;
-            padding: 15px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            gap: 16px;
         }
-
-        .line-wrapper {
-            display: flex;
-            font-size: 0.9rem;
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 18px;
             line-height: 1.5;
-            margin-bottom: 4px;
+            font-size: 15px;
+            word-wrap: break-word;
         }
-
-        .line-number {
-            width: 30px;
-            color: #858585;
-            text-align: right;
-            margin-right: 15px;
-            user-select: none;
-        }
-
-        .code-content {
-            flex: 1;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        /* Bottom Console Controls */
-        .terminal-panel {
-            background-color: #181818;
-            border-top: 1px solid #2b2b2b;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .terminal-header {
-            font-size: 0.75rem;
-            color: #858585;
-            text-transform: uppercase;
-            font-weight: bold;
-            display: flex;
-            gap: 15px;
-        }
-
-        .terminal-header span.active {
+        .user-message {
+            background-color: #2b2a33;
             color: #fff;
-            border-bottom: 1px solid #fff;
-            padding-bottom: 2px;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
         }
-
+        .model-message {
+            background-color: transparent;
+            color: #e3e3e3;
+            align-self: flex-start;
+            padding-left: 4px;
+        }
+        .system-status {
+            align-self: center;
+            background-color: #2a2b2d;
+            color: #9aa0a6;
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid #3c4043;
+        }
+        /* Google AI Studio Style Input Panel */
+        .input-panel {
+            background-color: #1e1f20;
+            padding: 12px 16px;
+            border-top: 1px solid #2d2f31;
+        }
         .input-wrapper {
+            background-color: #282a2d;
+            border-radius: 28px;
             display: flex;
-            background-color: var(--editor-bg);
-            border: 1px solid #3c3c3c;
-            border-radius: 4px;
-            padding: 8px;
             align-items: center;
+            padding: 6px 6px 6px 16px;
+            border: 1px solid transparent;
         }
-
-        .terminal-prompt {
-            color: var(--text-keyword);
-            margin-right: 8px;
-            font-weight: bold;
-            user-select: none;
+        .input-wrapper:focus-within {
+            border-color: #a8c7fa;
+            background-color: #1e1f20;
         }
-
-        textarea {
+        #user-prompt {
             flex: 1;
-            background: transparent;
+            background: none;
             border: none;
+            color: #e3e3e3;
+            font-size: 15px;
             outline: none;
-            color: var(--text-string);
-            font-family: inherit;
-            font-size: 0.95rem;
             resize: none;
+            max-height: 100px;
+            padding: 6px 0;
         }
-
-        button {
-            background-color: var(--accent-blue);
-            color: white;
+        #run-btn {
+            background-color: #a8c7fa;
+            color: #042f62;
             border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
-            font-weight: bold;
+            border-radius: 24px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 14px;
             cursor: pointer;
-            font-family: inherit;
+            transition: background-color 0.2s;
         }
-
-        button:active {
-            opacity: 0.8;
-        }
-
-        /* Bottom Status Bar */
-        .status-bar {
-            background-color: var(--status-bg);
-            color: white;
-            padding: 4px 10px;
-            font-size: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            user-select: none;
+        #run-btn:disabled {
+            background-color: #3c4043;
+            color: #80868b;
         }
     </style>
 </head>
 <body>
 
-    <div class="tabs-container">
-        <div class="tab active"><span>JS</span> freebuff_ai.js</div>
-        <div class="tab"><span>{}</span> package.json</div>
+    <header>
+        <h1>Freebuff Studio</h1>
+        <span class="model-badge">DeepSeek Flash</span>
+    </header>
+
+    <div id="chat-container">
+        <div class="message model-message">Hello! How can I help you build or code today?</div>
     </div>
 
-    <div class="editor-container">
-        <div class="line-wrapper">
-            <div class="line-number">1</div>
-            <div class="code-content"><span style="color:var(--text-keyword)">const</span> response = <span style="color:var(--text-link)">document</span>.<span style="color:#dcdcaa">getElementById</span>(<span style="color:var(--text-string)">"ai-response"</span>);</div>
-        </div>
-        <div class="line-wrapper">
-            <div class="line-number">2</div>
-            <div class="code-content" id="ai-response" style="color: var(--text-string);">// Server Online. Output terminal responses will write code or explanations here...</div>
-        </div>
-    </div>
-
-    <div class="terminal-panel">
-        <div class="terminal-header">
-            <span class="active">Terminal</span>
-            <span>Output</span>
-            <span>Debug Console</span>
-        </div>
+    <div class="input-panel">
         <div class="input-wrapper">
-            <div class="terminal-prompt">~$</div>
-            <textarea id="user-prompt" rows="2" placeholder="Type prompt/code requirement..."></textarea>
-            <button onclick="handleChatSubmit()">Run</button>
+            <textarea id="user-prompt" placeholder="Type a prompt..." rows="1"></textarea>
+            <button id="run-btn" onclick="handleChatSubmit()">Run</button>
         </div>
-    </div>
-
-    <div class="status-bar">
-        <div>🔒 main* • Render Proxy Live</div>
-        <div>UTF-8 • JavaScript</div>
     </div>
 
     <script src="app.js"></script>
