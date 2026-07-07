@@ -1,18 +1,19 @@
 async function handleChatSubmit() {
     const promptInput = document.getElementById("user-prompt");
-    const responseWindow = document.getElementById("ai-response");
+    // Target the code line display area inside the tab layout
+    const responseLine = document.querySelector(".code-line || #ai-response");
     
-    // Check if elements exist on page
-    if (!promptInput || !responseWindow) return;
-    
+    if (!promptInput) return;
     const promptText = promptInput.value.trim();
+
     if (!promptText) {
-        alert("Please enter a prompt first!");
+        alert("Please type a message first!");
         return;
     }
 
-    // VS Code streaming status comment layout
-    responseWindow.innerText = "// Connecting to proxy... Streaming data matrix...";
+    if (responseLine) {
+        responseLine.innerText = "// Connecting to DeepSeek cloud... Analyzing request structure...";
+    }
     promptInput.value = "";
 
     try {
@@ -28,20 +29,29 @@ async function handleChatSubmit() {
             })
         });
 
-        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`Server status error: ${response.status}`);
+        }
+
         const data = await response.json();
-        
-        // Output clean AI message text directly to screen
+        let aiOutput = "";
+
         if (data.message && data.message.content) {
-            responseWindow.innerText = data.message.content;
+            aiOutput = data.message.content;
         } else if (data.response) {
-            responseWindow.innerText = data.response;
+            aiOutput = data.response;
         } else {
-            responseWindow.innerText = JSON.stringify(data, null, 2);
+            aiOutput = JSON.stringify(data, null, 2);
+        }
+
+        if (responseLine) {
+            responseLine.innerText = aiOutput;
         }
 
     } catch (error) {
         console.error("Error:", error);
-        responseWindow.innerText = `// System Error: Failed to fetch model data.\n// Details: ${error.message}`;
+        if (responseLine) {
+            responseLine.innerText = `// Connection Blocked: ${error.message}\n// Hint: Make sure CORS middleware is enabled on your Render service server.js file.`;
+        }
     }
 }
